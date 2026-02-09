@@ -1,7 +1,9 @@
 - created database and connected to server 
-- created user Schema
-- created seminar-hall Schema
-- created booking Schema
-- created sign up api
-- created login api and added jwt to signup api
-- created userAuth middleware
+- user Schema
+- seminar-hall Schema
+- booking Schema
+- sign up api
+- login api and added jwt to signup api
+- userAuth middleware
+- created admin router
+- admin/add-seminarhall api
