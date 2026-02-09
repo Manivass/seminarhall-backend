@@ -2,6 +2,8 @@ const express = require("express");
 const connectionDB = require("./config/database");
 const app = express();
 
+
+
 connectionDB()
   .then(() => {
     console.log("db successfully connected");

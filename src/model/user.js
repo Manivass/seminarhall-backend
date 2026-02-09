@@ -7,16 +7,19 @@ const userSchema = new mongoose.Schema(
       minLength: 3,
       maxLength: 20,
       required: true,
+      trim: true,
     },
     lastName: {
       type: String,
       minLength: 3,
       maxLength: 20,
+      trim: true,
     },
     emailId: {
       type: String,
       unique: true,
       required: true,
+      trim: true,
       validate: function (value) {
         if (!validator.isEmail(value)) {
           throw new Error("emaild id is not valid");

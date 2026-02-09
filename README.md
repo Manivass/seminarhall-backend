@@ -2,3 +2,4 @@
 - created user Schema
 - created seminar-hall Schema
 - created booking Schema
+- created sign up api
