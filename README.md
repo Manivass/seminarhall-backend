@@ -1,2 +1,3 @@
 - created database and connected to server 
 - created user Schema
+- created seminar-hall Schema
