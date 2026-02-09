@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -49,6 +50,12 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+userSchema.methods.comparePasswordAndHash = async function (newPassword) {
+  const user = this;
+  const isPasswordCrt = await bcrypt.compare(newPassword, user.password);
+  return isPasswordCrt;
+};
 
 const User = new mongoose.model("User", userSchema);
 
