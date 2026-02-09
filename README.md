@@ -4,3 +4,4 @@
 - created booking Schema
 - created sign up api
 - created login api and added jwt to signup api
+- created userAuth middleware
