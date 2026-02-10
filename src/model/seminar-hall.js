@@ -24,7 +24,6 @@ const seminarHallSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      required: true,
       default: "active",
       enum: {
         values: ["active", "maintenance"],

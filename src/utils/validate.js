@@ -25,10 +25,8 @@ const validateAndSanitizeSeminarHall = (req) => {
     throw new Error("please enter the hallName");
   } else if (capacity < 1) {
     throw new Error("capacity must be greater than 0");
-  } else if (facilities.length > 10) {
+  } else if (facilities > 10) {
     throw new Error("facilites must be less than 10");
-  } else if (!["active", "maintenance"].includes(status)) {
-    throw new Error(`${status} is not valid status`);
   }
 };
 

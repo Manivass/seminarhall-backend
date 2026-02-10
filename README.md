@@ -7,3 +7,4 @@
 - userAuth middleware
 - created admin router
 - admin/add-seminarhall api
+- hall - booking api
