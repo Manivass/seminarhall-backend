@@ -2,31 +2,45 @@ const express = require("express");
 const userAuth = require("../middleware/userAuth");
 const SeminarHall = require("../model/seminar-hall");
 const Booking = require("../model/booking");
+const Booking = require("../model/booking");
 
 const userRouter = express.Router();
 
-userRouter.post("/user/Hall-booking", userAuth, async (req, res) => {
+userRouter.post("/user/Hall-booking/:hallId", userAuth, async (req, res) => {
   try {
-    let loggedUser = req.user;
+    const loggedUser = req.user;
     if (loggedUser.role !== "user") {
-      return res.status(403).json({ message: "only user can book " });
+      return res.status(403).send("only user can book slot");
     }
-    const { hallId, date, startTime, endTime } = req.body;
-    if (!hallId || !date || !startTime || !endTime) {
-      return res.status(400).json({ message: "pls fill all the credentials" });
-    }
+    const hallId = req.params.hallId;
     const isHallAvailable = await SeminarHall.findById(hallId);
     if (!isHallAvailable) {
-      return res.status(404).json({ message: "no hall found.." });
+      return res.status(404).send("no hall found");
+    }
+    const { date, startTime, endTime } = req.body;
+    if (!date || !startTime || !endTime) {
+      return res.status(400).send("pls fill the credentials");
     }
     const startTimeISO = new Date(`${date}T${startTime}:00`);
     const endTimeISO = new Date(`${date}T${endTime}:00`);
     if (isNaN(startTimeISO) || isNaN(endTimeISO)) {
-      return res.status(400).send("pls give the valid timings");
+      return res.status(400).send("pls send the date and time");
     }
     if (startTimeISO >= endTimeISO) {
-      return res.status(400).send("pls give the time correctly");
+      return res
+        .status(400)
+        .send("the startTime must smaller than the endTime");
     }
+    const isOverlapping = await Booking.findOne({
+      hallId,
+      startTime: { $lt: endTimeISO },
+      endTime: { $gt: startTimeISO },
+      status: { $in: ["accepted", "pending"] },
+    });
+    if (isOverlapping) {
+      return res.status(400).send("slot is already booked for this time");
+    }
+
     const newBooking = new Booking({
       userId: loggedUser._id,
       hallId,
@@ -35,7 +49,7 @@ userRouter.post("/user/Hall-booking", userAuth, async (req, res) => {
       endTime: endTimeISO,
     });
     await newBooking.save();
-    res.status(201).json({ message: "successfully compelted" });
+    res.status(201).json({ message: "slot is on pending list" });
   } catch (err) {
     res.status(400).send(err.message);
   }
