@@ -9,6 +9,7 @@ const bookingSchema = new mongoose.Schema(
     hallId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "SeminarHall",
     },
     date: {
       type: Date,

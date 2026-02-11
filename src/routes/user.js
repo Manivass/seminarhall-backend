@@ -2,10 +2,10 @@ const express = require("express");
 const userAuth = require("../middleware/userAuth");
 const SeminarHall = require("../model/seminar-hall");
 const Booking = require("../model/booking");
-const Booking = require("../model/booking");
 
 const userRouter = express.Router();
 
+// booking hall api
 userRouter.post("/user/Hall-booking/:hallId", userAuth, async (req, res) => {
   try {
     const loggedUser = req.user;
@@ -50,6 +50,39 @@ userRouter.post("/user/Hall-booking/:hallId", userAuth, async (req, res) => {
     });
     await newBooking.save();
     res.status(201).json({ message: "slot is on pending list" });
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
+// booking - history
+
+userRouter.get("/user/mybooking", userAuth, async (req, res) => {
+  try {
+    const loggedUser = req.user;
+    const page = pareseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 2;
+    const skip = (page - 1) * limit;
+    if (loggedUser.role !== "user") {
+      return res.status(403).send("only user can see the booking history");
+    }
+    const status = req.query.status ? req.query.status : "accepted";
+    if (!["accepted", "rejected", "pending"].includes(status)) {
+      return res.status(400).send("pls enter the valid status");
+    }
+    const bookingHistory = await Booking.find({
+      userId: loggedUser._id,
+      status,
+    })
+      .select("hallId date startTime endTime status")
+      .populate("hallId", "hallName capacity")
+      .skip(skip)
+      .limit(limit)
+      .sort({ startTime: -1 });
+    if (bookingHistory.length === 0) {
+      return res.status(200).send("no booking found");
+    }
+    res.json({ data: bookingHistory });
   } catch (err) {
     res.status(400).send(err.message);
   }

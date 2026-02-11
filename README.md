@@ -9,3 +9,4 @@
 - admin/add-seminarhall api
 - hall - booking api
 - created overlap logic for hall - booking api
+- user/my-booking api
