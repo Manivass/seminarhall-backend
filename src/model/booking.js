@@ -28,7 +28,7 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       default: "pending",
       enum: {
-        values: ["accepted", "rejected", "pending"],
+        values: ["accepted", "rejected", "pending", "cancelled"],
         message: `{VALUE} is not valid status type`,
       },
       required: true,

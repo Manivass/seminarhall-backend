@@ -60,8 +60,8 @@ userRouter.post("/user/Hall-booking/:hallId", userAuth, async (req, res) => {
 userRouter.get("/user/mybooking", userAuth, async (req, res) => {
   try {
     const loggedUser = req.user;
-    const page = pareseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 2;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 2;
     const skip = (page - 1) * limit;
     if (loggedUser.role !== "user") {
       return res.status(403).send("only user can see the booking history");
@@ -87,5 +87,40 @@ userRouter.get("/user/mybooking", userAuth, async (req, res) => {
     res.status(400).send(err.message);
   }
 });
+
+// cancel the booking
+userRouter.post(
+  "/user/booking/:bookingId/cancel",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedUser = req.user;
+      if (loggedUser.role !== "user") {
+        return res.status(403).send("only user can cancel the booking");
+      }
+      const bookingId = req.params.bookingId;
+      const booking = await Booking.findById(bookingId);
+      if (!booking) {
+        return res.status(404).send("no booking slot found");
+      }
+      if (!booking.userId.equals(loggedUser._id)) {
+        return res.status(404).send("this is not your booking slot");
+      }
+      if (booking.status !== "pending") {
+        return res.status(400).send("status is not in pending status");
+      }
+      if (new Date() > booking.startTime) {
+        return res.status(400).send("time already over");
+      }
+      booking.status = "cancelled";
+      await booking.save();
+      res
+        .status(201)
+        .json({ message: "successfully cancelled", booking });
+    } catch (err) {
+      res.status(400).send(err.message);
+    }
+  },
+);
 
 module.exports = userRouter;
