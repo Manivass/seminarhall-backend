@@ -11,3 +11,4 @@
 - created overlap logic for hall - booking api
 - user/my-booking api
 - user/cancel -booking api
+- admin/booking/:bookingId api
