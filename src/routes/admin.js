@@ -9,7 +9,9 @@ adminRouter.post("/admin/add-seminar-Hall", userAuth, async (req, res) => {
   try {
     const loggedUser = req.user;
     if (loggedUser.role !== "admin") {
-      return res.status(400).send("only admin add the seminar hall");
+      return res
+        .status(409)
+        .json({ success: false, message: "only admin add the seminar hall" });
     }
     validateAndSanitizeSeminarHall(req.body);
     const { hallName, capacity, facilities, status } = req.body;
@@ -20,9 +22,11 @@ adminRouter.post("/admin/add-seminar-Hall", userAuth, async (req, res) => {
       status,
     });
     await seminarHall.save();
-    res.status(201).json({ message: "hall successfully added", seminarHall });
+    res
+      .status(201)
+      .json({ success: true, message: "hall successfully added", seminarHall });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
@@ -35,18 +39,24 @@ adminRouter.patch("/admin/booking/:bookingId", userAuth, async (req, res) => {
     const bookingId = req.params.bookingId;
     const bookingHall = await Booking.findById(bookingId);
     if (!bookingHall) {
-      return res.status(404).send("no slot found");
+      return res.status(404).json({ success: false, message: "no slot found" });
     }
     const { status } = req.body;
     if (!["accepted", "rejected"].includes(status)) {
-      return res.status(400).send(`${status} is not valid status`);
+      return res
+        .status(400)
+        .json({ success: false, message: `${status} is not valid status` });
     }
 
     bookingHall.status = status;
     await bookingHall.save();
-    res.json({ message: `hall ${status} successfully`, bookingHall });
+    res.json({
+      success: true,
+      message: `hall ${status} successfully`,
+      bookingHall,
+    });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 

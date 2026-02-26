@@ -38,6 +38,7 @@ const bookingSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+bookingSchema.index({ hallId: 1, startTime: 1 });
 
 const Booking = new mongoose.model("Booking", bookingSchema);
 module.exports = Booking;

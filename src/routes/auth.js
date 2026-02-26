@@ -29,10 +29,11 @@ authRouter.post("/signUp", async (req, res) => {
       expires: new Date(Date.now() + 100 * 24 * 60 * 60),
     });
     res.status(201).json({
+      success: true,
       message: "user added successfully",
     });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
@@ -42,21 +43,25 @@ authRouter.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
     const emailAvailable = await User.findOne({ emailId });
     if (!emailAvailable) {
-      return res.status(400).send("invalid credentials");
+      return res
+        .status(400)
+        .json({ success: false, message: "invalid credentials" });
     }
     const isPasswordCorrect =
       await emailAvailable.comparePasswordAndHash(password);
     if (!isPasswordCorrect) {
-      return res.status(400).send("invalid credentials");
+      return res
+        .status(400)
+        .json({ success: false, message: "invalid credentials" });
     }
     const token = await emailAvailable.getJWT();
     res.cookie("token", token, {
       httpOnly: true,
       expires: new Date(Date.now() + 100 * 24 * 60 * 60),
     });
-    res.status(201).json({ message: "succeessfully logged in" });
+    res.status(201).json({ success: true, message: "succeessfully logged in" });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
@@ -68,7 +73,7 @@ authRouter.post("/logout", userAuth, async (req, res) => {
     res.cookie("token", null, { expires: new Date(Date.now()) });
     res.json({ message: "successfully logged out" });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
