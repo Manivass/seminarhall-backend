@@ -31,6 +31,7 @@ authRouter.post("/signUp", async (req, res) => {
     res.status(201).json({
       success: true,
       message: "user added successfully",
+      data: newUser,
     });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -59,7 +60,7 @@ authRouter.post("/login", async (req, res) => {
       httpOnly: true,
       expires: new Date(Date.now() + 100 * 24 * 60 * 60),
     });
-    res.status(201).json({ success: true, message: "succeessfully logged in" });
+    res.status(201).json({ success: true, message: "succeessfully logged in" , data : emailAvailable });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }

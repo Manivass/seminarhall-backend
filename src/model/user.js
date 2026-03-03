@@ -46,6 +46,17 @@ const userSchema = new mongoose.Schema(
         message: `{VALUE} is not valid role`,
       },
     },
+    photoURL: {
+      type: String,
+      required: true,
+      default:
+        "https://www.pngmart.com/files/22/User-Avatar-Profile-PNG-Isolated-File.png",
+      validate: function (value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Photo URL is not valid");
+        }
+      },
+    },
   },
   {
     timestamps: true,
