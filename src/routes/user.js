@@ -157,4 +157,30 @@ userRouter.post(
   },
 );
 
+userRouter.get("/hallAvailable", userAuth, async (req, res) => {
+  try {
+    const hallAvailable = await SeminarHall.find({});
+    res.status(200).json({ success: true, data: hallAvailable });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+userRouter.post("/hall/:hallId", userAuth, async (req, res) => {
+  try {
+    const hallId = req.params.hallId;
+    const isHallAvailable = await SeminarHall.findById(hallId);
+    if (!isHallAvailable) {
+      return res.status(404).json({ success: false, message: "No hall found" });
+    }
+    res.status(200).json({
+      success: true,
+      message: "hall found successfully",
+      data: isHallAvailable,
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = userRouter;

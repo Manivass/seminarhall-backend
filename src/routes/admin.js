@@ -14,12 +14,13 @@ adminRouter.post("/admin/add-seminar-Hall", userAuth, async (req, res) => {
         .json({ success: false, message: "only admin add the seminar hall" });
     }
     validateAndSanitizeSeminarHall(req.body);
-    const { hallName, capacity, facilities, status } = req.body;
+    const { hallName, capacity, facilities, status, photoURL } = req.body;
     const seminarHall = new SeminarHall({
       hallName,
       capacity,
       facilities,
       status,
+      photoURL,
     });
     await seminarHall.save();
     res
