@@ -63,15 +63,20 @@ adminRouter.patch("/admin/booking/:bookingId", userAuth, async (req, res) => {
 
 adminRouter.get("/admin/pending-details", userAuth, async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
     const loggedUser = req.user;
     if (loggedUser.role !== "admin") {
       return res
-        .status(409)
+        .status(403)
         .json({ success: false, message: "only admin can do this" });
     }
     const pendingDetails = await Booking.find({ status: "pending" })
       .populate("hallId", "hallName capacity status photoURL")
-      .populate("userId", "firstName lastName photoURL");
+      .populate("userId", "firstName lastName photoURL")
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({
       success: true,
       message: "pending list successfully fetched",
@@ -81,5 +86,55 @@ adminRouter.get("/admin/pending-details", userAuth, async (req, res) => {
     res.status(400).json({ success: false, message: err.message });
   }
 });
+
+adminRouter.patch(
+  "/admin/booking/:status/:hallId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedUser = req.user;
+      const status = req.params.status;
+      const hallId = req.params.hallId;
+
+      if (loggedUser.role !== "admin") {
+        return res
+          .status(403)
+          .json({ success: false, message: "only admin can do this" });
+      }
+
+      if (status !== "pending") {
+        return res
+          .status(403)
+          .json({
+            success: false,
+            message: "only pending status can change state",
+          });
+      }
+
+      if (!["accepted", "rejected"].includes(status)) {
+        return res
+          .status(400)
+          .json({ success: false, message: "invalid status" });
+      }
+
+      const isHallAvailable = await Booking.findById(hallId);
+      if (!isHallAvailable) {
+        return res
+          .status(404)
+          .json({ success: false, message: "No hall Available" });
+      }
+
+      isHallAvailable.status = status;
+      await isHallAvailable.save();
+
+      res.status(200).json({
+        success: true,
+        message: `status ${status} is changed successfully`,
+      });
+    } catch (err) {
+      res.status(400).json({ success: false, message: err.message });
+    }
+  },
+);
 
 module.exports = adminRouter;
