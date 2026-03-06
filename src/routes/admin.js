@@ -61,4 +61,25 @@ adminRouter.patch("/admin/booking/:bookingId", userAuth, async (req, res) => {
   }
 });
 
+adminRouter.get("/admin/pending-details", userAuth, async (req, res) => {
+  try {
+    const loggedUser = req.user;
+    if (loggedUser.role !== "admin") {
+      return res
+        .status(409)
+        .json({ success: false, message: "only admin can do this" });
+    }
+    const pendingDetails = await Booking.find({ status: "pending" })
+      .populate("hallId", "hallName capacity status photoURL")
+      .populate("userId", "firstName lastName photoURL");
+    res.status(200).json({
+      success: true,
+      message: "pending list successfully fetched",
+      data: pendingDetails,
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = adminRouter;
